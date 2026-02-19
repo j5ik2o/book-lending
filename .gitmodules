@@ -1,0 +1,6 @@
+[submodule "references/takt"]
+	path = references/takt
+	url = git@j5ik2o.github.com:nrslib/takt.git
+[submodule "references/okite-ai"]
+	path = references/okite-ai
+	url = git@j5ik2o.github.com:j5ik2o/okite-ai.git
