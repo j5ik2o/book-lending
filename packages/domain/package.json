@@ -1,0 +1,27 @@
+{
+  "name": "@book-lending/domain",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "lint": "biome check . && tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --sourcemap --outfile=dist/index.js && tsc -p tsconfig.json --emitDeclarationOnly"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.2",
+    "@types/node": "^25.3.0",
+    "esbuild": "^0.27.3",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "event-store-adapter-js": "2.2.166",
+    "ulid": "^3.0.2"
+  }
+}
