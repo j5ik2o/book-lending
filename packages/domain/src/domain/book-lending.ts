@@ -17,19 +17,19 @@ export class BookLending {
     readonly bookId: string,
     readonly memberId: string,
     readonly dueAtIso: string,
-    readonly returnedAtIso: string | null,
+    readonly returnedAtIso: string | undefined,
   ) {}
 
   static create(params: CreateBookLendingParams): BookLending {
-    return new BookLending(params.id, params.bookId, params.memberId, params.dueAtIso, null);
+    return new BookLending(params.id, params.bookId, params.memberId, params.dueAtIso, undefined);
   }
 
   isReturned(): boolean {
-    return this.returnedAtIso !== null;
+    return this.returnedAtIso !== undefined;
   }
 
   returnBook(returnedAtIso: string): BookLending {
-    if (this.returnedAtIso !== null) {
+    if (this.returnedAtIso !== undefined) {
       throw new Error("Book is already returned.");
     }
 
