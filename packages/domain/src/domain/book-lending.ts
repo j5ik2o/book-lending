@@ -1,23 +1,23 @@
-import type {ULID} from "ulid";
+import {BookId} from "./book-id";
+import {MemberId} from "./member-id";
+import {DueAt} from "./due-at";
+import {ReturnedAt} from "./returned-at";
+import {BookLendingId} from "./book-lending-id";
 
 type CreateBookLendingParams = Readonly<{
   id: BookLendingId;
-  bookId: string;
-  memberId: string;
-  dueAtIso: string;
+  bookId: BookId;
+  memberId: MemberId;
+  dueAtIso: DueAt;
 }>;
-
-export class BookLendingId {
-    constructor(readonly value: ULID) {}
-}
 
 export class BookLending {
   private constructor(
     readonly id: BookLendingId,
-    readonly bookId: string,
-    readonly memberId: string,
-    readonly dueAtIso: string,
-    readonly returnedAtIso: string | undefined,
+    readonly bookId: BookId,
+    readonly memberId: MemberId,
+    readonly dueAtIso: DueAt,
+    readonly returnedAtIso: ReturnedAt | undefined,
   ) {}
 
   static create(params: CreateBookLendingParams): BookLending {
@@ -28,7 +28,7 @@ export class BookLending {
     return this.returnedAtIso !== undefined;
   }
 
-  returnBook(returnedAtIso: string): BookLending {
+  returnBook(returnedAtIso: ReturnedAt): BookLending {
     if (this.returnedAtIso !== undefined) {
       throw new Error("Book is already returned.");
     }
