@@ -18,7 +18,12 @@ const buildBookLending = (): BookLending => {
     id: new BookLendingId("01HZZZZZZZZZZZZZZZZZZZZZZZ" as ULID),
     bookId: new BookId("book-1"),
     memberId: new MemberId("member-1"),
-    dueAtIso: dueAtResult.value,
+    dueAtIso: dueAtResult.fold(
+      (success) => success,
+      (failure) => {
+        throw failure;
+      },
+    ),
   });
 };
 
@@ -31,10 +36,12 @@ describe("BookLending", () => {
   test("returnBookで返却済みに遷移する", () => {
     const sut = buildBookLending();
     const returnedAtResult = ReturnedAt.create("2020-01-01T00:00:00.000Z");
-    if (returnedAtResult.isFailure()) {
-      throw returnedAtResult.error;
-    }
-    const returnedAt = returnedAtResult.value;
+    const returnedAt = returnedAtResult.fold(
+      (success) => success,
+      (failure) => {
+        throw failure;
+      },
+    );
     const newSut = sut.returnBook(returnedAt);
     expect(newSut.isReturned()).toBe(true);
   });

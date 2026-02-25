@@ -1,4 +1,4 @@
-import { Success } from "./success";
+import type { Success } from "./success";
 
 export class Failure<T, E> {
   readonly tag = "failure";
@@ -11,5 +11,9 @@ export class Failure<T, E> {
 
   isFailure(): this is Failure<T, E> {
     return true;
+  }
+
+  fold<R>(_onSuccess: (value: T) => R, onFailure: (error: E) => R): R {
+    return onFailure(this.error);
   }
 }
