@@ -1,8 +1,11 @@
-import { BookId } from "./book-id";
-import { MemberId } from "./member-id";
-import { DueAt } from "./due-at";
-import { ReturnedAt } from "./returned-at";
-import { BookLendingId } from "./book-lending-id";
+import type { Result } from "../shared/result";
+import { failure, success } from "../shared/results";
+import { BookAlreadyReturnedException } from "./book-already-returned-exception";
+import type { BookId } from "./book-id";
+import type { BookLendingId } from "./book-lending-id";
+import type { DueAt } from "./due-at";
+import type { MemberId } from "./member-id";
+import type { ReturnedAt } from "./returned-at";
 
 type CreateBookLendingParams = Readonly<{
   id: BookLendingId;
@@ -35,14 +38,16 @@ export class BookLending {
     return this.returnedAt !== undefined;
   }
 
-  returnBook(returnedAt: ReturnedAt): BookLending {
+  returnBook(returnedAt: ReturnedAt): Result<BookLending, BookAlreadyReturnedException> {
     if (this.returnedAt !== undefined) {
-      throw new Error("Book is already returned.");
+      return failure(new BookAlreadyReturnedException());
     }
 
-    return BookLending.create({
-      ...this,
-      returnedAt,
-    });
+    return success(
+      BookLending.create({
+        ...this,
+        returnedAt,
+      }),
+    );
   }
 }

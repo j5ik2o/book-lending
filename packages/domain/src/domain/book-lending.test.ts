@@ -1,6 +1,7 @@
 import { describe, test } from "node:test";
 import { expect } from "expect";
 import type { ULID } from "ulid";
+import { BookAlreadyReturnedException } from "./book-already-returned-exception";
 import { BookId } from "./book-id";
 import { BookLending } from "./book-lending";
 import { BookLendingId } from "./book-lending-id";
@@ -8,22 +9,32 @@ import { DueAt } from "./due-at";
 import { MemberId } from "./member-id";
 import { ReturnedAt } from "./returned-at";
 
-const buildBookLending = (): BookLending => {
+const buildDueAt = (): DueAt => {
   const dueAtResult = DueAt.create("2030-01-01T00:00:00.000Z");
-  if (dueAtResult.isFailure()) {
-    throw dueAtResult.error;
-  }
+  return dueAtResult.fold(
+    (success) => success,
+    (failure) => {
+      throw failure;
+    },
+  );
+};
 
+const buildReturnedAt = (): ReturnedAt => {
+  const returnedAtResult = ReturnedAt.create("2020-01-01T00:00:00.000Z");
+  return returnedAtResult.fold(
+    (success) => success,
+    (failure) => {
+      throw failure;
+    },
+  );
+};
+
+const buildBookLending = (): BookLending => {
   return BookLending.create({
     id: new BookLendingId("01HZZZZZZZZZZZZZZZZZZZZZZZ" as ULID),
     bookId: new BookId("book-1"),
     memberId: new MemberId("member-1"),
-    dueAtIso: dueAtResult.fold(
-      (success) => success,
-      (failure) => {
-        throw failure;
-      },
-    ),
+    dueAtIso: buildDueAt(),
   });
 };
 
@@ -35,18 +46,37 @@ describe("BookLending", () => {
 
   test("returnBookで返却済みに遷移する", () => {
     const sut = buildBookLending();
-    const returnedAtResult = ReturnedAt.create("2020-01-01T00:00:00.000Z");
-    const returnedAt = returnedAtResult.fold(
+    const returnedAt = buildReturnedAt();
+    const newSut = sut.returnBook(returnedAt).fold(
       (success) => success,
       (failure) => {
         throw failure;
       },
     );
-    const newSut = sut.returnBook(returnedAt);
     expect(newSut.isReturned()).toBe(true);
   });
 
-  test.todo("返却済みの貸出をreturnBookすると例外になる");
+  test("返却済みの貸出をreturnBookするとfailureになる", () => {
+    const sut = buildBookLending();
+    const returnedAt = buildReturnedAt();
+    const returnedSut = sut.returnBook(returnedAt).fold(
+      (success) => success,
+      (failure) => {
+        throw failure;
+      },
+    );
+    const secondReturnResult = returnedSut.returnBook(returnedAt);
+    expect(secondReturnResult.isFailure()).toBe(true);
+    secondReturnResult.fold(
+      () => {
+        throw new Error("Expected failure.");
+      },
+      (failure) => {
+        expect(failure).toBeInstanceOf(BookAlreadyReturnedException);
+      },
+    );
+  });
+
   test("生成時に受け取った値が保持される", () => {
     const sut = buildBookLending();
     expect(sut.id.value).toBe("01HZZZZZZZZZZZZZZZZZZZZZZZ");
