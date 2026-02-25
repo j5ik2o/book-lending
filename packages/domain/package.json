@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
+    "format": "biome format --write .",
     "lint": "biome check . && tsc -p tsconfig.json --noEmit",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test \"src/**/*.test.ts\"",

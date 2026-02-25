@@ -6,6 +6,7 @@ import { BookLending } from "./book-lending";
 import { BookLendingId } from "./book-lending-id";
 import { DueAt } from "./due-at";
 import { MemberId } from "./member-id";
+import { ReturnedAt } from "./returned-at";
 
 const buildBookLending = (): BookLending => {
   const dueAtResult = DueAt.create("2030-01-01T00:00:00.000Z");
@@ -27,7 +28,17 @@ describe("BookLending", () => {
     expect(sut.isReturned()).toBe(false);
   });
 
-  test.todo("returnBookで返却済みに遷移する");
+  test("returnBookで返却済みに遷移する", () => {
+    const sut = buildBookLending();
+    const returnedAtResult = ReturnedAt.create("2020-01-01T00:00:00.000Z");
+    if (returnedAtResult.isFailure()) {
+      throw returnedAtResult.error;
+    }
+    const returnedAt = returnedAtResult.value;
+    const newSut = sut.returnBook(returnedAt);
+    expect(newSut.isReturned()).toBe(true);
+  });
+
   test.todo("返却済みの貸出をreturnBookすると例外になる");
   test("生成時に受け取った値が保持される", () => {
     const sut = buildBookLending();

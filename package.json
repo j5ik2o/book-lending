@@ -6,6 +6,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "format": "pnpm --filter @book-lending/domain format",
     "test": "pnpm --filter @book-lending/domain test"
   },
   "repository": {

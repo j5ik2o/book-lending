@@ -1,4 +1,4 @@
-import {Success} from "./success";
+import { Success } from "./success";
 
 export class Failure<T, E> {
   readonly tag = "failure";
