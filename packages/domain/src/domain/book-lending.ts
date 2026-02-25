@@ -33,12 +33,9 @@ export class BookLending {
       throw new Error("Book is already returned.");
     }
 
-    return new BookLending(
-      this.id,
-      this.bookId,
-      this.memberId,
-      this.dueAtIso,
+    return BookLending.create({
+      ...this,
       returnedAtIso,
-    );
+    });
   }
 }
