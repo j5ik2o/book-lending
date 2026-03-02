@@ -5,7 +5,7 @@
  */
 import { describe, test } from "node:test";
 import { expect } from "expect";
-import { BookAlreadyCanceledException } from "./book-already-canceled-exception";
+import { BookAlreadyCanceledError } from "./book-already-canceled-error";
 import { buildBookReservation, buildReturnedBookLending } from "./test-fixtures";
 
 describe("BookReservation", () => {
@@ -41,7 +41,7 @@ describe("BookReservation", () => {
         throw new Error("Expected failure.");
       },
       (failure) => {
-        expect(failure).toBeInstanceOf(BookAlreadyCanceledException);
+        expect(failure).toBeInstanceOf(BookAlreadyCanceledError);
       },
     );
   });

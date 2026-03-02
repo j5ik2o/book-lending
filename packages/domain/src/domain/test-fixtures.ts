@@ -8,18 +8,35 @@ import { DueAt } from "./due-at";
 import { MemberId } from "./member-id";
 import { ReturnedAt } from "./returned-at";
 
-export const buildDueAt = (value = "2030-01-01T00:00:00.000Z"): DueAt => {
-  return DueAt.create(value).fold(
+const unwrap = <T>(result: { fold: (s: (v: T) => T, f: (e: unknown) => T) => T }): T => {
+  return result.fold(
     (s) => s,
     (f) => { throw f; },
   );
 };
 
+export const buildBookId = (value: ULID = "01HZZZZZZZZZZZZZZZZZZZZZZZ" as ULID): BookId => {
+  return BookId.create(value);
+};
+
+export const buildMemberId = (value: ULID = "01HYYYYYYYYYYYYYYYYYYYYYYYY" as ULID): MemberId => {
+  return MemberId.create(value);
+};
+
+export const buildBookLendingId = (value: ULID = "01HZZZZZZZZZZZZZZZZZZZZZZZ" as ULID): BookLendingId => {
+  return BookLendingId.create(value);
+};
+
+export const buildBookReservationId = (value: ULID = "01HZZZZZZZZZZZZZZZZZZZZZZZ" as ULID): BookReservationId => {
+  return BookReservationId.create(value);
+};
+
+export const buildDueAt = (value = "2030-01-01T00:00:00.000Z"): DueAt => {
+  return unwrap(DueAt.parseFromString(value));
+};
+
 export const buildReturnedAt = (value = "2020-01-01T00:00:00.000Z"): ReturnedAt => {
-  return ReturnedAt.create(value).fold(
-    (s) => s,
-    (f) => { throw f; },
-  );
+  return unwrap(ReturnedAt.parseFromString(value));
 };
 
 export const buildBookLending = (overrides?: Partial<{
@@ -30,9 +47,9 @@ export const buildBookLending = (overrides?: Partial<{
   returnedAt: ReturnedAt;
 }>): BookLending => {
   return BookLending.create({
-    id: overrides?.id ?? new BookLendingId("01HZZZZZZZZZZZZZZZZZZZZZZZ" as ULID),
-    bookId: overrides?.bookId ?? new BookId("book-1"),
-    memberId: overrides?.memberId ?? new MemberId("member-1"),
+    id: overrides?.id ?? buildBookLendingId(),
+    bookId: overrides?.bookId ?? buildBookId(),
+    memberId: overrides?.memberId ?? buildMemberId(),
     dueAtIso: overrides?.dueAtIso ?? buildDueAt(),
     returnedAt: overrides?.returnedAt,
   });
@@ -57,8 +74,8 @@ export const buildBookReservation = (overrides?: Partial<{
   memberId: MemberId;
 }>): BookReservation => {
   return BookReservation.create({
-    id: overrides?.id ?? new BookReservationId("01HZZZZZZZZZZZZZZZZZZZZZZZ" as ULID),
-    bookId: overrides?.bookId ?? new BookId("book-1"),
-    memberId: overrides?.memberId ?? new MemberId("member-1"),
+    id: overrides?.id ?? buildBookReservationId(),
+    bookId: overrides?.bookId ?? buildBookId(),
+    memberId: overrides?.memberId ?? buildMemberId(),
   });
 };

@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import { expect } from "expect";
-import { BookAlreadyReturnedException } from "./book-already-returned-exception";
+import { BookAlreadyReturnedError } from "./book-already-returned-error";
 import { buildBookLending, buildReturnedAt } from "./test-fixtures";
 
 describe("BookLending", () => {
@@ -57,7 +57,7 @@ describe("BookLending", () => {
         throw new Error("Expected failure.");
       },
       (failure) => {
-        expect(failure).toBeInstanceOf(BookAlreadyReturnedException);
+        expect(failure).toBeInstanceOf(BookAlreadyReturnedError);
       },
     );
   });
@@ -65,8 +65,8 @@ describe("BookLending", () => {
   test("生成時に受け取った値が保持される", () => {
     const sut = buildBookLending();
     expect(sut.id.value).toBe("01HZZZZZZZZZZZZZZZZZZZZZZZ");
-    expect(sut.bookId.value).toBe("book-1");
-    expect(sut.memberId.value).toBe("member-1");
-    expect(sut.dueAtIso.value).toBe("2030-01-01T00:00:00.000Z");
+    expect(sut.bookId.value).toBe("01HZZZZZZZZZZZZZZZZZZZZZZZ");
+    expect(sut.memberId.value).toBe("01HYYYYYYYYYYYYYYYYYYYYYYYY");
+    expect(sut.dueAtIso.value.toISOString()).toBe("2030-01-01T00:00:00.000Z");
   });
 });

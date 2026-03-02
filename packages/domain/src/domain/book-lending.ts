@@ -1,6 +1,6 @@
 import type { Result } from "../shared/result";
 import { failure, success } from "../shared/results";
-import { BookAlreadyReturnedException } from "./book-already-returned-exception";
+import { BookAlreadyReturnedError } from "./book-already-returned-error";
 import type { BookId } from "./book-id";
 import type { BookLendingId } from "./book-lending-id";
 import type { DueAt } from "./due-at";
@@ -46,9 +46,9 @@ export class BookLending {
   }
 
   /** 書籍を返却する。既に返却済みの場合は失敗を返す。 */
-  returnBook(returnedAt: ReturnedAt): Result<BookLending, BookAlreadyReturnedException> {
+  returnBook(returnedAt: ReturnedAt): Result<BookLending, BookAlreadyReturnedError> {
     if (this.returnedAt !== undefined) {
-      return failure(new BookAlreadyReturnedException());
+      return failure(new BookAlreadyReturnedError());
     }
 
     return success(

@@ -1,7 +1,7 @@
 import type { BookReservationId } from "./book-reservation-id";
 import type { Result } from "../shared/result";
 import { failure, success } from "../shared/results";
-import { BookAlreadyCanceledException } from "./book-already-canceled-exception";
+import { BookAlreadyCanceledError } from "./book-already-canceled-error";
 import type { BookId } from "./book-id";
 import type { MemberId } from "./member-id";
 import {BookLending} from "./book-lending";
@@ -39,9 +39,9 @@ export class BookReservation {
   }
 
   /** 予約をキャンセルする。既にキャンセル済みの場合は失敗を返す。 */
-  cancel(): Result<BookReservation, BookAlreadyCanceledException> {
+  cancel(): Result<BookReservation, BookAlreadyCanceledError> {
     if (this.cancelledAt !== undefined) {
-      return failure(new BookAlreadyCanceledException());
+      return failure(new BookAlreadyCanceledError());
     }
     return success(BookReservation.create({ ...this, cancelledAt: new Date() }));
   }
