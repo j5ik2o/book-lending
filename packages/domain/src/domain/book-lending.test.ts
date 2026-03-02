@@ -1,42 +1,7 @@
 import { describe, test } from "node:test";
 import { expect } from "expect";
-import type { ULID } from "ulid";
 import { BookAlreadyReturnedException } from "./book-already-returned-exception";
-import { BookId } from "./book-id";
-import { BookLending } from "./book-lending";
-import { BookLendingId } from "./book-lending-id";
-import { DueAt } from "./due-at";
-import { MemberId } from "./member-id";
-import { ReturnedAt } from "./returned-at";
-
-const buildDueAt = (): DueAt => {
-  const dueAtResult = DueAt.create("2030-01-01T00:00:00.000Z");
-  return dueAtResult.fold(
-    (success) => success,
-    (failure) => {
-      throw failure;
-    },
-  );
-};
-
-const buildReturnedAt = (): ReturnedAt => {
-  const returnedAtResult = ReturnedAt.create("2020-01-01T00:00:00.000Z");
-  return returnedAtResult.fold(
-    (success) => success,
-    (failure) => {
-      throw failure;
-    },
-  );
-};
-
-const buildBookLending = (): BookLending => {
-  return BookLending.create({
-    id: new BookLendingId("01HZZZZZZZZZZZZZZZZZZZZZZZ" as ULID),
-    bookId: new BookId("book-1"),
-    memberId: new MemberId("member-1"),
-    dueAtIso: buildDueAt(),
-  });
-};
+import { buildBookLending, buildReturnedAt } from "./test-fixtures";
 
 describe("BookLending", () => {
   test("createした貸出は未返却である", () => {

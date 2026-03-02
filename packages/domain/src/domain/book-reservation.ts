@@ -14,6 +14,11 @@ type CreateBookReservationParams = Readonly<{
   lent?: boolean;
 }>;
 
+/**
+ * 書籍予約集約。
+ *
+ * 書籍の予約・キャンセル・貸出への遷移を管理する。
+ */
 export class BookReservation {
   private constructor(
     readonly id: BookReservationId,
@@ -23,14 +28,17 @@ export class BookReservation {
     private readonly _lent: boolean = false,
   ) {}
 
+  /** 書籍予約を生成する。 */
   static create(params: CreateBookReservationParams): BookReservation {
     return new BookReservation(params.id, params.bookId, params.memberId, params.cancelledAt, params.lent ?? false);
   }
 
+  /** キャンセル済みかどうかを返す。 */
   isCanceled(): boolean {
     return this.cancelledAt !== undefined;
   }
 
+  /** 予約をキャンセルする。既にキャンセル済みの場合は失敗を返す。 */
   cancel(): Result<BookReservation, BookAlreadyCanceledException> {
     if (this.cancelledAt !== undefined) {
       return failure(new BookAlreadyCanceledException());
@@ -38,10 +46,12 @@ export class BookReservation {
     return success(BookReservation.create({ ...this, cancelledAt: new Date() }));
   }
 
+  /** 貸出済みかどうかを返す。 */
   isLent(): boolean {
     return this._lent;
   }
 
+  /** 予約した書籍を借りる。前回の貸出が返却済みであることが前提。 */
   lendBook(previousBookLending: BookLending): Result<[BookReservation, BookLending], Error> {
     const newReservation = BookReservation.create({ ...this, lent: true });
     const newBookLending = BookLending.create({
