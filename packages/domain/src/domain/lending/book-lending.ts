@@ -1,10 +1,10 @@
-import type { Result } from "../shared/result";
-import { failure, success } from "../shared/results";
+import type { Result } from "../../shared/result";
+import { failure, success } from "../../shared/results";
 import { BookAlreadyReturnedError } from "./book-already-returned-error";
-import type { BookId } from "./book-id";
+import type { BookId } from "../book-id";
 import type { BookLendingId } from "./book-lending-id";
 import type { DueAt } from "./due-at";
-import type { MemberId } from "./member-id";
+import type { MemberId } from "../member-id";
 import type { ReturnedAt } from "./returned-at";
 
 type CreateBookLendingParams = Readonly<{

@@ -1,10 +1,10 @@
 import type { BookReservationId } from "./book-reservation-id";
-import type { Result } from "../shared/result";
-import { failure, success } from "../shared/results";
+import type { Result } from "../../shared/result";
+import { failure, success } from "../../shared/results";
 import { BookAlreadyCanceledError } from "./book-already-canceled-error";
-import type { BookId } from "./book-id";
-import type { MemberId } from "./member-id";
-import {BookLending} from "./book-lending";
+import type { BookId } from "../book-id";
+import type { MemberId } from "../member-id";
+import {BookLending} from "../lending/book-lending";
 
 type CreateBookReservationParams = Readonly<{
   id: BookReservationId;

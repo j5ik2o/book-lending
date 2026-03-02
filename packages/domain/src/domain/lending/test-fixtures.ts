@@ -1,11 +1,9 @@
 import type { ULID } from "ulid";
-import { BookId } from "./book-id";
+import { BookId } from "../book-id";
+import { MemberId } from "../member-id";
 import { BookLending } from "./book-lending";
 import { BookLendingId } from "./book-lending-id";
-import { BookReservation } from "./book-reservation";
-import { BookReservationId } from "./book-reservation-id";
 import { DueAt } from "./due-at";
-import { MemberId } from "./member-id";
 import { ReturnedAt } from "./returned-at";
 
 const unwrap = <T>(result: { fold: (s: (v: T) => T, f: (e: unknown) => T) => T }): T => {
@@ -25,10 +23,6 @@ export const buildMemberId = (value: ULID = "01HYYYYYYYYYYYYYYYYYYYYYYYY" as ULI
 
 export const buildBookLendingId = (value: ULID = "01HZZZZZZZZZZZZZZZZZZZZZZZ" as ULID): BookLendingId => {
   return BookLendingId.create(value);
-};
-
-export const buildBookReservationId = (value: ULID = "01HZZZZZZZZZZZZZZZZZZZZZZZ" as ULID): BookReservationId => {
-  return BookReservationId.create(value);
 };
 
 export const buildDueAt = (value = "2030-01-01T00:00:00.000Z"): DueAt => {
@@ -65,17 +59,5 @@ export const buildReturnedBookLending = (overrides?: Partial<{
   return buildBookLending({
     returnedAt: buildReturnedAt(),
     ...overrides,
-  });
-};
-
-export const buildBookReservation = (overrides?: Partial<{
-  id: BookReservationId;
-  bookId: BookId;
-  memberId: MemberId;
-}>): BookReservation => {
-  return BookReservation.create({
-    id: overrides?.id ?? buildBookReservationId(),
-    bookId: overrides?.bookId ?? buildBookId(),
-    memberId: overrides?.memberId ?? buildMemberId(),
   });
 };

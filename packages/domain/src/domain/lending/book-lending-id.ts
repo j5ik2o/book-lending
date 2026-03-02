@@ -1,7 +1,7 @@
 import { type ULID, isValid } from "ulid";
-import type { Result } from "../shared/result";
-import { failure, success } from "../shared/results";
-import { InvalidAggregateIdError } from "./invalid-aggregate-id-error";
+import type { Result } from "../../shared/result";
+import { failure, success } from "../../shared/results";
+import { InvalidAggregateIdError } from "../invalid-aggregate-id-error";
 
 /** 書籍貸出集約のID（ULID）。 */
 export class BookLendingId {
