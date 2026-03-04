@@ -3,7 +3,7 @@ import { failure, success } from "../../shared/results";
 import { BookAlreadyReturnedError } from "./book-already-returned-error";
 import type { BookId } from "../book-id";
 import type { BookLendingId } from "./book-lending-id";
-import type { DueAt } from "./due-at";
+import { DueAt } from "./due-at";
 import type { MemberId } from "../member-id";
 import type { ReturnedAt } from "./returned-at";
 
@@ -43,6 +43,16 @@ export class BookLending {
   /** 返却済みかどうかを返す。 */
   isReturned(): boolean {
     return this.returnedAt !== undefined;
+  }
+
+  /** 貸出期限を延長する（仮実装）。 */
+  renewBookLending(now: Date, _hasReservation: boolean): Result<BookLending, Error> {
+    const dueDate = this.dueAtIso.value;
+    const baseDate = now <= dueDate ? now : dueDate;
+    const newDate = new Date(baseDate);
+    newDate.setDate(newDate.getDate() + 14);
+    const newDueAt = DueAt.create(newDate);
+    return success(BookLending.create({ ...this, dueAtIso: newDueAt }));
   }
 
   /** 書籍を返却する。既に返却済みの場合は失敗を返す。 */
