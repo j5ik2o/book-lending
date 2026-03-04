@@ -2,9 +2,13 @@ import type { BookReservationId } from "./book-reservation-id";
 import type { Result } from "../../shared/result";
 import { failure, success } from "../../shared/results";
 import { BookAlreadyCanceledError } from "./book-already-canceled-error";
+import { BookNotReturnedError } from "./book-not-returned-error";
 import type { BookId } from "../book-id";
 import type { MemberId } from "../member-id";
-import {BookLending} from "../lending/book-lending";
+import { BookLending } from "../lending/book-lending";
+import type { BookLendingId } from "../lending/book-lending-id";
+import type { DueAt } from "../lending/due-at";
+import {BookAlreadyLentError} from "./book-already-lent-error";
 
 type CreateBookReservationParams = Readonly<{
   id: BookReservationId;
@@ -51,14 +55,20 @@ export class BookReservation {
     return this._lent;
   }
 
-  /** 予約した書籍を借りる。前回の貸出が返却済みであることが前提。 */
-  lendBook(previousBookLending: BookLending): Result<[BookReservation, BookLending], Error> {
+  /** 予約した書籍を借りる。前回の貸出がある場合は返却済みであることが前提。 */
+  lendBook(bookLendingId: BookLendingId, dueAt: DueAt, previousBookLending?: BookLending): Result<[BookReservation, BookLending], BookNotReturnedError> {
+    if (this._lent) {
+      return failure(new BookAlreadyLentError());
+    }
+    if (previousBookLending !== undefined && !previousBookLending.isReturned()) {
+      return failure(new BookNotReturnedError());
+    }
     const newReservation = BookReservation.create({ ...this, lent: true });
     const newBookLending = BookLending.create({
-      id: previousBookLending.id,
-      bookId: previousBookLending.bookId,
-      memberId: previousBookLending.memberId,
-      dueAtIso: previousBookLending.dueAtIso,
+      id: bookLendingId,
+      bookId: this.bookId,
+      memberId: this.memberId,
+      dueAtIso: dueAt,
     });
     return success([newReservation, newBookLending]);
   }

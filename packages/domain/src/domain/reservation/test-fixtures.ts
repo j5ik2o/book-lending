@@ -5,7 +5,7 @@ import { buildBookLending, buildReturnedBookLending } from "../lending/test-fixt
 import { BookReservation } from "./book-reservation";
 import { BookReservationId } from "./book-reservation-id";
 
-export { buildBookLending, buildReturnedBookLending } from "../lending/test-fixtures";
+export { buildBookLending, buildBookLendingId, buildDueAt, buildReturnedBookLending } from "../lending/test-fixtures";
 
 const buildBookId = (value: ULID = "01HZZZZZZZZZZZZZZZZZZZZZZZ" as ULID): BookId => {
   return BookId.create(value);

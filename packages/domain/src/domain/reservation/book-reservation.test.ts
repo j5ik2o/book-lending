@@ -6,7 +6,9 @@
 import { describe, test } from "node:test";
 import { expect } from "expect";
 import { BookAlreadyCanceledError } from "./book-already-canceled-error";
-import { buildBookReservation, buildReturnedBookLending } from "./test-fixtures";
+import { BookAlreadyLentError } from "./book-already-lent-error";
+import { BookNotReturnedError } from "./book-not-returned-error";
+import { buildBookLending, buildBookLendingId, buildBookReservation, buildDueAt, buildReturnedBookLending } from "./test-fixtures";
 
 describe("BookReservation", () => {
   test("createした予約は未キャンセルである", () => {
@@ -14,46 +16,98 @@ describe("BookReservation", () => {
     expect(sut.isCanceled()).toBe(false);
   });
 
-  test("未キャンセルの予約はキャンセル済みである", () => {
-    const sut = buildBookReservation();
-    const newSut = sut.cancel().fold(
-      (success) => success,
-      (failure) => {
-        throw failure;
-      },
-    );
-    expect(newSut.isCanceled()).toBe(true);
+  describe("cancel", () => {
+    test("未キャンセルの予約をキャンセルできる", () => {
+      const sut = buildBookReservation();
+      const newSut = sut.cancel().fold(
+        (success) => success,
+        (failure) => {
+          throw failure;
+        },
+      );
+      expect(newSut.isCanceled()).toBe(true);
+    });
+
+    test("キャンセル済みの予約は再キャンセルできない", () => {
+      const sut = buildBookReservation();
+      const canceledSut = sut.cancel().fold(
+        (success) => success,
+        (failure) => {
+          throw failure;
+        },
+      );
+      const result = canceledSut.cancel();
+      expect(result.isFailure()).toBe(true);
+      result.fold(
+        () => {
+          throw new Error("Expected failure.");
+        },
+        (failure) => {
+          expect(failure).toBeInstanceOf(BookAlreadyCanceledError);
+        },
+      );
+    });
   });
 
-  test("キャンセルした予約はキャンセルできない", () => {
-    const sut = buildBookReservation();
-    const newSut = sut.cancel().fold(
-      (success) => success,
-      (failure) => {
-        throw failure;
-      },
-    );
-    expect(newSut.isCanceled()).toBe(true);
-    const result = newSut.cancel();
-    expect(result.isFailure()).toBe(true);
-    result.fold(
-      () => {
-        throw new Error("Expected failure.");
-      },
-      (failure) => {
-        expect(failure).toBeInstanceOf(BookAlreadyCanceledError);
-      },
-    );
-  });
+  describe("lendBook", () => {
+    test("初回貸出（前回の貸出なし）であれば貸出できる", () => {
+      const sut = buildBookReservation();
+      const [newSut, bookLending] = sut.lendBook(buildBookLendingId(), buildDueAt()).fold(
+        (success) => success,
+        (failure) => {
+          throw failure;
+        },
+      );
+      expect(newSut.isLent()).toBe(true);
+      expect(bookLending.isReturned()).toBe(false);
+    });
 
-  test("予約した書籍を借りる", () => {
-    const sut = buildBookReservation();
-    const previousBookLending = buildReturnedBookLending();
-    const [newSut, bookLending] = sut.lendBook(previousBookLending).fold(
-      (success) => success,
-      (failure) => { throw failure; },
-    );
-    expect(newSut.isLent()).toBe(true);
-    expect(bookLending.isReturned()).toBe(false);
+    test("前回の貸出が返却済みであれば貸出できる", () => {
+      const sut = buildBookReservation();
+      const previousBookLending = buildReturnedBookLending();
+      const [newSut, bookLending] = sut.lendBook(buildBookLendingId(), buildDueAt(), previousBookLending).fold(
+        (success) => success,
+        (failure) => {
+          throw failure;
+        },
+      );
+      expect(newSut.isLent()).toBe(true);
+      expect(bookLending.isReturned()).toBe(false);
+    });
+
+    test("前回の貸出が未返却であれば貸出できない", () => {
+      const sut = buildBookReservation();
+      const previousBookLending = buildBookLending();
+      const result = sut.lendBook(buildBookLendingId(), buildDueAt(), previousBookLending);
+      expect(result.isFailure()).toBe(true);
+      result.fold(
+        () => {
+          throw new Error("Expected failure.");
+        },
+        (failure) => {
+          expect(failure).toBeInstanceOf(BookNotReturnedError);
+        },
+      );
+    });
+
+    test("既に貸出済みであれば再貸出できない", () => {
+      const sut = buildBookReservation();
+      const lentSut = sut.lendBook(buildBookLendingId(), buildDueAt()).fold(
+        ([reservation]) => reservation,
+        (failure) => {
+          throw failure;
+        },
+      );
+      const result = lentSut.lendBook(buildBookLendingId(), buildDueAt());
+      expect(result.isFailure()).toBe(true);
+      result.fold(
+        () => {
+          throw new Error("Expected failure.");
+        },
+        (failure) => {
+          expect(failure).toBeInstanceOf(BookAlreadyLentError);
+        },
+      );
+    });
   });
 });
